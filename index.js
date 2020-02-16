@@ -43,6 +43,7 @@ function assign(obj, keyPath, value) {
 }
 var obj = {};
 app.get('/entities', (req, res) => {
+    obj = {};
     s3.listObjectsV2(params, function (err, data) {
         if (err) {
             console.log(err);
