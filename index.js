@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(bodyParser.json());
+var buck = 'thicc-boi-thiccbucket-1lqm0m2iu7gji';
 const s3 = new AWS.S3({
     region: 'us-east-1',
     Bucket: 'thicc-boi-thiccbucket-1lqm0m2iu7gji'
@@ -41,8 +42,12 @@ app.get('/entities', (req, res) => {
             console.log(err);
         } else {
             data.Contents.forEach((i) => {
+                var href = this.request.httpRequest.endpoint.href;
+                var bucketUrl = href + buck + "/";
+                var songKey = i.Key;
+                var songUrl = bucketUrl + encodeURIComponent(songKey);
                 var res = i.Key.split("/");
-                assign(obj, res, i.Key)
+                assign(obj, res, songUrl)
             })
         }
         res.send(obj);
