@@ -6,16 +6,12 @@ var AWS = require("aws-sdk");
 const app = express();
 const port = 3000;
 app.use(cors());
-// app.use(bodyParser.urlencoded({
-//     extended: false
-// }));
-// app.use(bodyParser.json());
-// app.use((req, res, next) => {
-//     res.append('Access-Control-Allow-Origin', ['*']);
-//     res.append('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-//     res.append('Access-Control-Allow-Headers', 'Content-Type');
-//     next();
-// });
+
+// Create DynamoDB document client
+var docClient = new AWS.DynamoDB.DocumentClient({
+    region: 'us-east-1',
+    apiVersion: '2012-08-10'
+});
 var buck = 'thicc-boi-thiccbucket-1lqm0m2iu7gji';
 const s3 = new AWS.S3({
     region: 'us-east-1',
@@ -59,4 +55,59 @@ app.get('/entities', (req, res) => {
         res.send(obj);
     })
 });
+function query(filter) {
+    var result = [];
+    var params = {
+      TableName: "music",
+      KeyConditionExpression: "PrimaryKey = :v1",
+      ExpressionAttributeValues: { ":v1": filter}
+    }
+    docClient.query(params, function (err, data) {
+        // console.log(data)
+        if (err) console.log(err);
+        else {
+            data.Items.forEach((i) => {
+                result.push(i.SortKey);
+            });
+            console.log("result: ", result);
+            return result;
+        }
+    })
+};
+
+function scan(scanKey) {
+    var resultArray = []
+
+    var params = {
+        TableName : "music",
+        FilterExpression: "pk = :scanValue",
+        ExpressionAttributeValues: {
+            ":scanValue": scanKey
+        }
+    };
+
+    docClient.scan(params, function(err, data) {
+        if(err) console.log(err, err.stack);
+        else {
+            console.log(data);
+            data.Items.forEach((i) => {
+                console.log(i.sk);
+                resultArray.push(i.sk);
+            })
+            console.log(resultArray);
+        }
+    })
+
+    return resultArray;
+}
+
+app.get('/genres', (req,res) => {
+    var genres = scan("Genre");
+    res.send(genres);
+});
+
+app.get('/artists/for/genres', (req, res) => {
+    res.send(req.params);
+});
+
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
