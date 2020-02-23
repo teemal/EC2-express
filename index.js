@@ -37,24 +37,6 @@ function assign(obj, keyPath, value) {
     }
     obj[keyPath[lastKeyIndex]] = value;
 }
-var obj = {};
-app.get('/entities', (req, res) => {
-    s3.listObjectsV2(params, function (err, data) {
-        if (err) {
-            console.log(err);
-        } else {
-            data.Contents.forEach((i) => {
-                var href = this.request.httpRequest.endpoint.href;
-                var bucketUrl = href + buck + "/";
-                var songKey = i.Key;
-                var songUrl = bucketUrl + encodeURIComponent(songKey);
-                var res = i.Key.split("/");
-                assign(obj, res, songUrl)
-            })
-        }
-        res.send(obj);
-    })
-});
 
 function query(scanKey) {
     return new Promise( result => {
@@ -138,7 +120,5 @@ app.get('/song', async (req, res) => {
     var url = await query(song);
     res.send(url);
 })
-
-
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
