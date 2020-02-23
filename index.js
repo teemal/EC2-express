@@ -12,7 +12,7 @@ var dynamodb = new AWS.DynamoDB.DocumentClient({
     region: 'us-east-1',
     apiVersion: '2012-08-10'
 });
-var buck = 'thicc-boi-thiccbucket-1lqm0m2iu7gji';
+
 const s3 = new AWS.S3({
     region: 'us-east-1',
     Bucket: 'thicc-boi-thiccbucket-1lqm0m2iu7gji'
@@ -38,68 +38,67 @@ function assign(obj, keyPath, value) {
     obj[keyPath[lastKeyIndex]] = value;
 }
 
-function query(scanKey) {
-    return new Promise( result => {
-        var resultArray = [];
+async function query(scanKey) {
+    return new Promise(result => {
+        var res = [];
 
         var params = {
             TableName: "music",
             KeyConditionExpression: "pk = :scanValue",
-            ExpressionAttributeValues: { 
+            ExpressionAttributeValues: {
                 ":scanValue": scanKey
             }
         };
-      
+
         dynamodb.query(params, function (err, data) {
             if (err) console.log(err);
-            else{
+            else {
                 data.Items.forEach((i) => {
-                    resultArray.push(i.sk);
+                    res.push(i.sk);
                 });
-            console.log("resultArray: ", resultArray);
-          } 
+                console.log("resultArray: ", res);
+            }
         });
-    
-        result(resultArray);
+        result(res);
     })
 }
 
-function scan(scanKey) {
-    var resultArray = []
+async function scan(scanKey) {
+    return new Promise((resolve, reject) => {
+        var res = []
+            var params = {
+                TableName: "music",
+                FilterExpression: "pk = :scanValue",
+                ExpressionAttributeValues: {
+                    ":scanValue": scanKey
+                }
+            };
 
-    var params = {
-        TableName : "music",
-        FilterExpression: "pk = :scanValue",
-        ExpressionAttributeValues: {
-            ":scanValue": scanKey
-        }
-    };
-
-    dynamodb.scan(params, function(err, data) {
-        if(err) console.log(err, err.stack);
-        else {
-            console.log(data);
-            data.Items.forEach((i) => {
-                console.log(i.sk);
-                resultArray.push(i.sk);
+            dynamodb.scan(params, function (err, data) {
+                if (err) console.log(err, err.stack);
+                else {
+                    console.log(data);
+                    data.Items.forEach((i) => {
+                        console.log(i.sk);
+                        res.push(i.sk);
+                    })
+                    console.log(res);
+                }
             })
-            console.log(resultArray);
-        }
+            resolve(res);
     })
-
-    return resultArray;
 }
 
-var library = {};
 
-app.get('/genres', (req,res) => {
-    var genres = scan("Genres");
-    res.send(genres);
+app.get('/genres', async (req, res) => {
+    var gen = await scan("genre")
+    res.send(gen)
 });
 
 app.get('/artists/for/genre', async (req, res) => {
     var genre = req.query.genre;
     var artists = await query(genre);
+    console.log("art: ", artists)
     res.send(artists);
 });
 
