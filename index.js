@@ -133,5 +133,12 @@ app.get('/songs/for/album', async (req, res) => {
     res.send(songs);
 });
 
+app.get('/song', async (req, res) => {
+    var song = req.query.song;
+    var url = await query(song);
+    res.send(url);
+})
+
+
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
