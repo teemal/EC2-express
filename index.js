@@ -8,7 +8,7 @@ const port = 3000;
 app.use(cors());
 
 // Create DynamoDB document client
-var docClient = new AWS.DynamoDB.DocumentClient({
+var dynamodb = new AWS.DynamoDB.DocumentClient({
     region: 'us-east-1',
     apiVersion: '2012-08-10'
 });
@@ -55,59 +55,19 @@ app.get('/entities', (req, res) => {
         res.send(obj);
     })
 });
-function query(filter) {
-    var result = [];
-    var params = {
-      TableName: "music",
-      KeyConditionExpression: "PrimaryKey = :v1",
-      ExpressionAttributeValues: { ":v1": filter}
-    }
-    docClient.query(params, function (err, data) {
-        // console.log(data)
-        if (err) console.log(err);
-        else {
-            data.Items.forEach((i) => {
-                result.push(i.SortKey);
-            });
-            console.log("result: ", result);
-            return result;
-        }
-    })
-};
-
-function scan(scanKey) {
-    var resultArray = []
-
-    var params = {
-        TableName : "music",
-        FilterExpression: "pk = :scanValue",
-        ExpressionAttributeValues: {
-            ":scanValue": scanKey
-        }
-    };
-
-    docClient.scan(params, function(err, data) {
-        if(err) console.log(err, err.stack);
-        else {
-            console.log(data);
-            data.Items.forEach((i) => {
-                console.log(i.sk);
-                resultArray.push(i.sk);
-            })
-            console.log(resultArray);
-        }
-    })
-
-    return resultArray;
-}
+var library = {};
 
 app.get('/genres', (req,res) => {
-    var genres = scan("Genre");
+    var genres = scan("Genres");
     res.send(genres);
 });
 
-app.get('/artists/for/genres', (req, res) => {
-    res.send(req.params);
+app.get('/artists/for/genre', async (req, res) => {
+    var genre = req.query.genre;
+    var artists = await query(genre);
+    res.send(artists);
 });
+
+
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
