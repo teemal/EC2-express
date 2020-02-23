@@ -68,6 +68,12 @@ app.get('/artists/for/genre', async (req, res) => {
     res.send(artists);
 });
 
+app.get('/albums/for/artist', async (req, res) => {
+    var artist = req.query.artist;
+    var albums = await query(artist);
+    res.send(albums);
+});
+
 
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
