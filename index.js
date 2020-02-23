@@ -7,7 +7,6 @@ const app = express();
 const port = 3000;
 app.use(cors());
 
-// Create DynamoDB document client
 var dynamodb = new AWS.DynamoDB.DocumentClient({
     region: 'us-east-1',
     apiVersion: '2012-08-10'
