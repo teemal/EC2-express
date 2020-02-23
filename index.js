@@ -55,6 +55,59 @@ app.get('/entities', (req, res) => {
         res.send(obj);
     })
 });
+
+function query(scanKey) {
+    return new Promise( result => {
+        var resultArray = [];
+
+        var params = {
+            TableName: "music",
+            KeyConditionExpression: "pk = :scanValue",
+            ExpressionAttributeValues: { 
+                ":scanValue": scanKey
+            }
+        };
+      
+        dynamodb.query(params, function (err, data) {
+            if (err) console.log(err);
+            else{
+                data.Items.forEach((i) => {
+                    resultArray.push(i.sk);
+                });
+            console.log("resultArray: ", resultArray);
+          } 
+        });
+    
+        result(resultArray);
+    })
+}
+
+function scan(scanKey) {
+    var resultArray = []
+
+    var params = {
+        TableName : "music",
+        FilterExpression: "pk = :scanValue",
+        ExpressionAttributeValues: {
+            ":scanValue": scanKey
+        }
+    };
+
+    dynamodb.scan(params, function(err, data) {
+        if(err) console.log(err, err.stack);
+        else {
+            console.log(data);
+            data.Items.forEach((i) => {
+                console.log(i.sk);
+                resultArray.push(i.sk);
+            })
+            console.log(resultArray);
+        }
+    })
+
+    return resultArray;
+}
+
 var library = {};
 
 app.get('/genres', (req,res) => {
@@ -74,6 +127,11 @@ app.get('/albums/for/artist', async (req, res) => {
     res.send(albums);
 });
 
+app.get('/songs/for/album', async (req, res) => {
+    var album = req.query.album;
+    var songs = await query(album);
+    res.send(songs);
+});
 
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
