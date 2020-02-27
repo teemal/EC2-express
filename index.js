@@ -57,8 +57,8 @@ async function query(scanKey) {
                 });
                 console.log("resultArray: ", res);
             }
+            result(res);
         });
-        result(res);
     })
 }
 
@@ -83,8 +83,8 @@ async function scan(scanKey) {
                     })
                     console.log(res);
                 }
+                resolve(res);
             })
-            resolve(res);
     })
 }
 
