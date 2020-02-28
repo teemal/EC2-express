@@ -88,6 +88,33 @@ async function scan(scanKey) {
     })
 }
 
+async function put(userData){
+    return new Promise((resolve, reject)=>{
+        var params = {
+            ReturnConsumedCapacity: "TOTAL",
+            TableName: "users",
+            Item: {
+                "pk": {
+                    N : userData.id
+                },
+                "sk": {
+                    S : userData.email
+                },
+                "name": {
+                    S : userData.name
+                }
+            }
+        };
+
+        dynamodb.putItem(params, function(err, data){
+            if (err) console.log(err);
+            else{
+                console.log(data);
+            }
+        })
+    })
+} 
+
 
 app.get('/genres', async (req, res) => {
     var gen = await scan("genre")
@@ -117,6 +144,10 @@ app.get('/song', async (req, res) => {
     var song = req.query.song;
     var url = await query(song);
     res.send(url);
+})
+
+app.post('save-user', async (req, res) => {
+
 })
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
