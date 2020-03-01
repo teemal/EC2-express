@@ -88,25 +88,20 @@ async function scan(scanKey) {
     })
 }
 
-async function put(userData){
+async function putDDB(id, name, email){
     return new Promise((resolve, reject)=>{
+        // console.log(typeof id)
         var params = {
             ReturnConsumedCapacity: "TOTAL",
             TableName: "users",
             Item: {
-                "pk": {
-                    N : userData.id
-                },
-                "sk": {
-                    S : userData.email
-                },
-                "name": {
-                    S : userData.name
-                }
+                "pk": name,
+                "sk": id,
+                "email": email
             }
         };
 
-        dynamodb.putItem(params, function(err, data){
+        dynamodb.put(params, function(err, data){
             if (err) console.log(err);
             else{
                 console.log(data);
@@ -123,9 +118,9 @@ app.get('/genres', async (req, res) => {
 
 app.get('/artists/for/genre', async (req, res) => {
     var genre = req.query.genre;
+    console.log('genre ' + genre)
     var artists = await query(genre);
-    console.log("art: ", artists)
-    res.send(artists);
+    res.status(200).send(artists);
 });
 
 app.get('/albums/for/artist', async (req, res) => {
@@ -147,7 +142,19 @@ app.get('/song', async (req, res) => {
 })
 
 app.post('/save-user', async (req, res) => {
-
+    var id = req.query.id;
+    var name =  req.query.name;
+    var email = req.query.email;
+    putDDB(id, name, email)
+    // .then(res => {
+    //     console.log(res)
+    //     console.log('booty')
+    // })
+    .catch(e =>{
+        res.status(400).send('booty');
+    });
+    var gen = await scan("genre")
+    res.status(200).send(gen);
 })
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
