@@ -131,6 +131,7 @@ app.get('/albums/for/artist', async (req, res) => {
 
 app.get('/songs/for/album', async (req, res) => {
     var album = req.query.album;
+    console.log("alb: " + album)
     var songs = await query(album);
     res.send(songs);
 });
