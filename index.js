@@ -142,21 +142,5 @@ app.get('/song', async (req, res) => {
     res.send(url);
 })
 
-// app.post('/save-user', async (req, res) => {
-//     console.log('fuck')
-//     var id = req.query.id;
-//     var name =  req.query.name;
-//     var email = req.query.email;
-//     putDDB(id, name, email)
-//     // .then(res => {
-//     //     console.log(res)
-//     //     console.log('booty')
-//     // })
-//     .catch(e =>{
-//         res.status(400).send('booty');
-//     });
-//     var gen = await scan("genre")
-//     res.status(200).send(gen);
-// })
 
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`))
